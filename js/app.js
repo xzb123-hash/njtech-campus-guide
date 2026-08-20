@@ -547,12 +547,22 @@
     });
   }
 
-  /* 顶部导航高亮（按页面） */
-  const currentPage = document.body.dataset.page || "home";
-  $$(".nav-links a").forEach((a) => {
-    const target = a.getAttribute("href").replace(".html", "");
-    if (target === currentPage) a.classList.add("active");
-  });
+  /* 顶部导航高亮（单页锚点） */
+  const sections = ["hero", "map", "guide", "gallery", "about"];
+  const links = $$(".nav-links a");
+  function updateNavHighlight() {
+    const y = window.scrollY + 120;
+    let cur = "hero";
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el && el.offsetTop <= y) cur = id;
+    });
+    links.forEach((a) => {
+      a.classList.toggle("active", a.getAttribute("href") === "#" + cur);
+    });
+  }
+  window.addEventListener("scroll", updateNavHighlight, { passive: true });
+  updateNavHighlight();
 
   /* ---------------- 深色模式 ---------------- */
   const themeBtn = $("#themeToggle");
