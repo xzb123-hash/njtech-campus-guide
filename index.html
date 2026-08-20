@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#0b1f4d">
   <title>南京工业大学 · 新生校园导览</title>
   <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
   <link rel="stylesheet" href="lib/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -23,6 +25,7 @@
       <a href="#gallery">校园掠影</a>
       <a href="#about">关于数据</a>
     </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
   </nav>
 
   <!-- ======== 封面 ======== -->
@@ -31,6 +34,12 @@
       <div class="hero-grid"></div>
       <div class="hero-glow glow-a"></div>
       <div class="hero-glow glow-b"></div>
+      <div class="hero-aurora aurora-a"></div>
+      <div class="hero-aurora aurora-b"></div>
+      <div class="hero-beam"></div>
+      <div class="hero-particles">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
     </div>
 
     <svg class="hero-skyline" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
@@ -82,14 +91,7 @@
 
     <div class="hero-content">
       <div class="hero-emblem" aria-hidden="true">
-        <svg viewBox="0 0 120 140" role="img" aria-label="南工大元素徽章">
-          <path d="M60 6 L112 26 V66 Q112 106 60 134 Q8 106 8 66 V26 Z" fill="none" stroke="#c9a227" stroke-width="3"/>
-          <path d="M60 20 L100 34 V64 Q100 94 60 118 Q20 94 20 64 V34 Z" fill="#0d1f4d" stroke="#e8d48b" stroke-width="1.5"/>
-          <text x="60" y="52" text-anchor="middle" fill="#e8d48b" font-size="22" font-family="serif" font-weight="700">1902</text>
-          <text x="60" y="78" text-anchor="middle" fill="#f5f7ff" font-size="15" font-family="sans-serif">南 工</text>
-          <path d="M30 92 L90 92 L76 104 L44 104 Z" fill="#c9a227"/>
-          <text x="60" y="112" text-anchor="middle" fill="#c9a227" font-size="8" letter-spacing="2">南京工业大学</text>
-        </svg>
+        <img src="images/logo/logo_full.jpg" alt="南京工业大学官方校徽">
       </div>
 
       <p class="hero-eyebrow">NANJING TECH UNIVERSITY · 1902</p>
@@ -148,6 +150,23 @@
           <span class="legend-title">图例（点击筛选）</span>
           <div id="legendChips" class="legend-chips"></div>
         </div>
+
+        <div class="tool-row">
+          <button id="reportModeBtn" class="btn btn-outline btn-sm" type="button">🧭 报到动线模式</button>
+          <span id="reportStatus" class="tool-status"></span>
+        </div>
+        <div class="tool-bus">
+          <label for="busLineSelect">校园巴士模拟（站点动画）</label>
+          <div class="bus-row">
+            <select id="busLineSelect">
+              <option value="0">象山线</option>
+              <option value="1">亚青线</option>
+            </select>
+            <button id="busPlayBtn" class="btn btn-primary btn-sm" type="button">▶ 播放</button>
+            <button id="busStopBtn" class="btn btn-ghost btn-sm" type="button">■ 停止</button>
+          </div>
+          <span id="busStatus" class="tool-status"></span>
+        </div>
       </div>
 
       <div id="campusMap" class="campus-map"></div>
@@ -171,6 +190,33 @@
       <p class="section-kicker">FRESHMAN GUIDE</p>
       <h2>新生报到 · 校园生活指南</h2>
       <p class="section-desc">提前准备，报到不慌</p>
+    </div>
+
+    <div class="toolbox">
+      <article class="tool-card tool-weather">
+        <div class="tool-card-head">☁️ 南京天气与报到倒计时</div>
+        <div id="weatherBox" class="weather-box">正在获取天气…</div>
+        <div class="countdown">
+          <div class="countdown-label">距报到日还有</div>
+          <div id="countdown" class="countdown-digits">--天 --时 --分 --秒</div>
+          <label class="countdown-edit">报到日：<input id="orientationDate" type="datetime-local"></label>
+        </div>
+      </article>
+
+      <article class="tool-card tool-checklist">
+        <div class="tool-card-head">🧳 行李清单 <span class="tool-card-sub">点击勾选，自动保存</span></div>
+        <div class="checklist-progress"><div id="checklistBar" class="checklist-bar"></div><span id="checklistPct">0%</span></div>
+        <div id="checklistBody" class="checklist-body"></div>
+      </article>
+
+      <article class="tool-card tool-transit">
+        <div class="tool-card-head">🚇 从家到宿舍 · 交通接驳助手</div>
+        <label>我在：</label>
+        <select id="transitFrom" class="transit-select"></select>
+        <label>我的宿舍区：</label>
+        <select id="transitDorm" class="transit-select"></select>
+        <div id="transitResult" class="transit-result"></div>
+      </article>
     </div>
 
     <div class="guide-grid">
@@ -233,6 +279,18 @@
           <li>输入两个地点即可生成<b>步行路线与预计时长</b>。</li>
           <li>位置为公开数据整理，报到时以校内指示牌为准。</li>
         </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🔗</div>
+        <h3>常用入口</h3>
+        <ul id="campusLinks"></ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🏙</div>
+        <h3>多校区速览</h3>
+        <ul id="campusNote"></ul>
       </article>
     </div>
   </section>
