@@ -1,5 +1,5 @@
 /* 南京工业大学新生导览 · 离线缓存服务线程（stale-while-revalidate） */
-const CACHE = "njtech-guide-v1";
+const CACHE = "njtech-guide-v2";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
