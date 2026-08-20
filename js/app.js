@@ -52,7 +52,8 @@
   const poiById = {};
   POIS.forEach((p) => (poiById[p.no] = p));
 
-  /* ---------------- 地图初始化 ---------------- */
+  /* ---------------- 地图初始化（仅地图页） ---------------- */
+  if ($("#campusMap")) {
   const centerGCJ = wgs2gcj(32.0825, 118.6350);
   const map = L.map("campusMap", {
     center: centerGCJ,
@@ -533,31 +534,25 @@
 
   $("#routeBtn").addEventListener("click", computeRoute);
 
-  /* ---------------- 掠影 ---------------- */
-  const grid = $("#galleryGrid");
-  GALLERY.forEach((g) => {
-    const fig = document.createElement("figure");
-    fig.className = "gallery-item";
-    fig.innerHTML = '<img src="' + g.src + '" alt="' + g.caption + '" loading="lazy">' +
-      "<figcaption>" + g.caption + "</figcaption>";
-    fig.addEventListener("click", () => window.open(g.src, "_blank"));
-    grid.appendChild(fig);
-  });
+  /* ---------------- 掠影（仅掠影页） ---------------- */
+  if ($("#galleryGrid")) {
+    const grid = $("#galleryGrid");
+    GALLERY.forEach((g) => {
+      const fig = document.createElement("figure");
+      fig.className = "gallery-item";
+      fig.innerHTML = '<img src="' + g.src + '" alt="' + g.caption + '" loading="lazy">' +
+        "<figcaption>" + g.caption + "</figcaption>";
+      fig.addEventListener("click", () => window.open(g.src, "_blank"));
+      grid.appendChild(fig);
+    });
+  }
 
-  /* 顶部导航高亮 */
-  const sections = ["hero", "map", "guide", "gallery", "about"];
-  const links = $$(".nav-links a");
-  window.addEventListener("scroll", () => {
-    const y = window.scrollY + 120;
-    let cur = "hero";
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el && el.offsetTop <= y) cur = id;
-    });
-    links.forEach((a) => {
-      a.style.color = a.getAttribute("href") === "#" + cur ? "var(--gold-light)" : "";
-    });
-  }, { passive: true });
+  /* 顶部导航高亮（按页面） */
+  const currentPage = document.body.dataset.page || "home";
+  $$(".nav-links a").forEach((a) => {
+    const target = a.getAttribute("href").replace(".html", "");
+    if (target === currentPage) a.classList.add("active");
+  });
 
   /* ---------------- 深色模式 ---------------- */
   const themeBtn = $("#themeToggle");
@@ -576,7 +571,8 @@
     applyTheme(next);
   });
 
-  /* ---------------- 报到倒计时 ---------------- */
+  /* ---------------- 报到倒计时（仅指南页） ---------------- */
+  if ($("#countdown")) {
   const COUNT_KEY = "njtech-orientation";
   let orientationDate = localStorage.getItem(COUNT_KEY) || CONFIG.orientationDate;
   const dateInput = $("#orientationDate");
@@ -606,8 +602,10 @@
   }
   tick();
   setInterval(tick, 1000);
+  }
 
-  /* ---------------- 行李清单 ---------------- */
+  /* ---------------- 行李清单（仅指南页） ---------------- */
+  if ($("#checklistBody")) {
   const CHECK_KEY = "njtech-checklist";
   const doneSet = new Set(JSON.parse(localStorage.getItem(CHECK_KEY) || "[]"));
   function renderChecklist() {
@@ -643,8 +641,10 @@
     $("#checklistPct").textContent = pct + "%";
   }
   renderChecklist();
+  }
 
-  /* ---------------- 交通接驳助手 ---------------- */
+  /* ---------------- 交通接驳助手（仅指南页） ---------------- */
+  if ($("#transitFrom")) {
   const transitFrom = $("#transitFrom");
   const transitDorm = $("#transitDorm");
   const transitResult = $("#transitResult");
@@ -672,6 +672,7 @@
   transitFrom.addEventListener("change", renderTransit);
   transitDorm.addEventListener("change", renderTransit);
   renderTransit();
+  }
 
   /* ---------------- 校园巴士模拟 ---------------- */
   let busAnimId = null, busLayer = null;
@@ -797,7 +798,10 @@
     if (reportOn) closeReport(); else openReport();
   });
 
-  /* ---------------- 天气 ---------------- */
+  } /* —— 地图页功能结束 —— */
+
+  /* ---------------- 天气（仅指南页） ---------------- */
+  if ($("#weatherBox")) {
   const WMO = {
     0: "☀️ 晴", 1: "🌤 晴间多云", 2: "⛅ 多云", 3: "☁️ 阴",
     45: "🌫 雾", 48: "🌫 雾凇", 51: "🌦 毛毛雨", 53: "🌦 毛毛雨", 55: "🌧 毛毛雨",
@@ -831,14 +835,17 @@
   ).then((r) => r.json()).then(renderWeather).catch(() => {
     $("#weatherBox").textContent = "天气服务暂不可用（离线或无网络时无法获取）";
   });
+  }
 
-  /* ---------------- 常用入口 / 多校区 ---------------- */
+  /* ---------------- 常用入口 / 多校区（仅指南页） ---------------- */
+  if ($("#campusLinks")) {
   $("#campusLinks").innerHTML = CAMPUS_LINKS.map((l) =>
     '<li><a href="' + l.url + '" target="_blank" rel="noopener"><b>' + l.name + "</b></a> — " + l.desc + "</li>"
   ).join("");
   $("#campusNote").innerHTML = CAMPUS_NOTE.map((c) =>
     "<li><b>" + c.name + "</b>（" + c.addr + "）" + c.note + "</li>"
   ).join("");
+  }
 
   /* ---------------- PWA 离线支持 ---------------- */
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
