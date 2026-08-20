@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>校园地图 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="map">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
+    </a>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="map" class="map-section">
+    <div class="section-head">
+      <p class="section-kicker">INTERACTIVE CAMPUS MAP</p>
+      <h2>江浦校区交互地图</h2>
+      <p class="section-desc">序号从东南门（正门）开始编号 · 点击序号查看照片与介绍 · 输入地点查找位置 · 选择两个地点生成步行路线</p>
+    </div>
+
+    <div class="map-wrap">
+      <div class="map-tools">
+        <div class="tool-search">
+          <label for="searchInput">地点搜索</label>
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="输入地点，如：厚学楼 / 菜鸟驿站 / 食堂…" autocomplete="off">
+            <button id="searchBtn" type="button" aria-label="搜索">搜索</button>
+          </div>
+          <ul id="searchHints" class="search-hints" hidden></ul>
+        </div>
+
+        <div class="tool-route">
+          <label>路线规划 <span class="hint">（生成路线 + 预计步行时长）</span></label>
+          <div class="route-row">
+            <input id="routeFrom" type="text" placeholder="起点，如：东南门" autocomplete="off">
+            <button id="swapBtn" type="button" title="交换起终点" aria-label="交换">⇄</button>
+            <input id="routeTo" type="text" placeholder="终点，如：逸夫图书馆" autocomplete="off">
+          </div>
+          <div class="route-actions">
+            <button id="routeBtn" class="btn btn-primary btn-sm" type="button">生成路线</button>
+            <button id="clearRouteBtn" class="btn btn-ghost btn-sm" type="button">清除</button>
+            <span id="routeResult" class="route-result"></span>
+          </div>
+        </div>
+
+        <div class="tool-legend">
+          <span class="legend-title">图例（点击筛选）</span>
+          <div id="legendChips" class="legend-chips"></div>
+        </div>
+
+        <div class="tool-row">
+          <button id="reportModeBtn" class="btn btn-outline btn-sm" type="button">🧭 报到动线模式</button>
+          <span id="reportStatus" class="tool-status"></span>
+        </div>
+        <div class="tool-bus">
+          <label for="busLineSelect">校园巴士模拟（站点动画）</label>
+          <div class="bus-row">
+            <select id="busLineSelect">
+              <option value="0">象山线</option>
+              <option value="1">亚青线</option>
+            </select>
+            <button id="busPlayBtn" class="btn btn-primary btn-sm" type="button">▶ 播放</button>
+            <button id="busStopBtn" class="btn btn-ghost btn-sm" type="button">■ 停止</button>
+          </div>
+          <span id="busStatus" class="tool-status"></span>
+        </div>
+      </div>
+
+      <div id="campusMap" class="campus-map"></div>
+
+      <aside id="poiPanel" class="poi-panel">
+        <div class="panel-head">
+          <span>地点索引</span>
+          <button id="panelToggle" type="button" aria-label="收起">‹</button>
+        </div>
+        <div class="panel-search">
+          <input id="panelFilter" type="text" placeholder="筛选地点…">
+        </div>
+        <div id="poiList" class="poi-list"></div>
+      </aside>
+    </div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
