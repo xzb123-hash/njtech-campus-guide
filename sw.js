@@ -8,6 +8,10 @@ self.addEventListener("install", (e) => {
         c.addAll([
           "./",
           "./index.html",
+          "./map.html",
+          "./guide.html",
+          "./gallery.html",
+          "./about.html",
           "./css/style.css",
           "./js/data.js",
           "./js/roads_data.js",
