@@ -558,4 +558,290 @@
       a.style.color = a.getAttribute("href") === "#" + cur ? "var(--gold-light)" : "";
     });
   }, { passive: true });
+
+  /* ---------------- 深色模式 ---------------- */
+  const themeBtn = $("#themeToggle");
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t === "dark" ? "☀️" : "🌙";
+  }
+  let theme = localStorage.getItem("njtech-theme");
+  if (!theme) {
+    theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  applyTheme(theme);
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem("njtech-theme", next);
+    applyTheme(next);
+  });
+
+  /* ---------------- 报到倒计时 ---------------- */
+  const COUNT_KEY = "njtech-orientation";
+  let orientationDate = localStorage.getItem(COUNT_KEY) || CONFIG.orientationDate;
+  const dateInput = $("#orientationDate");
+  try {
+    dateInput.value = new Date(orientationDate).toISOString().slice(0, 16);
+  } catch (e) { /* 忽略非法日期 */ }
+  dateInput.addEventListener("change", () => {
+    const v = dateInput.value;
+    if (v) {
+      orientationDate = new Date(v).toISOString();
+      localStorage.setItem(COUNT_KEY, orientationDate);
+    } else {
+      orientationDate = CONFIG.orientationDate;
+      localStorage.removeItem(COUNT_KEY);
+    }
+    tick();
+  });
+  function tick() {
+    const el = $("#countdown");
+    const t = new Date(orientationDate).getTime() - Date.now();
+    if (t <= 0) { el.textContent = "报到日到啦 🎉"; return; }
+    const d = Math.floor(t / 864e5);
+    const h = Math.floor(t / 36e5) % 24;
+    const m = Math.floor(t / 6e4) % 60;
+    const s = Math.floor(t / 1e3) % 60;
+    el.textContent = d + "天 " + h + "时 " + m + "分 " + s + "秒";
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------------- 行李清单 ---------------- */
+  const CHECK_KEY = "njtech-checklist";
+  const doneSet = new Set(JSON.parse(localStorage.getItem(CHECK_KEY) || "[]"));
+  function renderChecklist() {
+    const body = $("#checklistBody");
+    body.innerHTML = "";
+    let total = 0, done = 0;
+    CHECKLIST.forEach((g) => {
+      total += g.items.length;
+      done += g.items.filter((it) => doneSet.has(g.cat + "|" + it)).length;
+      const cat = document.createElement("div");
+      cat.className = "checklist-cat";
+      cat.textContent = g.cat;
+      body.appendChild(cat);
+      g.items.forEach((it) => {
+        const key = g.cat + "|" + it;
+        const label = document.createElement("label");
+        label.className = "checklist-item" + (doneSet.has(key) ? " done" : "");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = doneSet.has(key);
+        cb.addEventListener("change", () => {
+          if (cb.checked) doneSet.add(key); else doneSet.delete(key);
+          localStorage.setItem(CHECK_KEY, JSON.stringify(Array.from(doneSet)));
+          renderChecklist();
+        });
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(it));
+        body.appendChild(label);
+      });
+    });
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    $("#checklistBar").style.width = pct + "%";
+    $("#checklistPct").textContent = pct + "%";
+  }
+  renderChecklist();
+
+  /* ---------------- 交通接驳助手 ---------------- */
+  const transitFrom = $("#transitFrom");
+  const transitDorm = $("#transitDorm");
+  const transitResult = $("#transitResult");
+  TRANSIT_OPTIONS.forEach((o) => {
+    const op = document.createElement("option");
+    op.value = o.id; op.textContent = o.label;
+    transitFrom.appendChild(op);
+  });
+  DORM_GATES.forEach((d) => {
+    const op = document.createElement("option");
+    op.value = d.dorm; op.textContent = d.dorm;
+    transitDorm.appendChild(op);
+  });
+  function renderTransit() {
+    const opt = TRANSIT_OPTIONS.find((o) => o.id === transitFrom.value);
+    if (!opt) { transitResult.innerHTML = ""; return; }
+    let html = "";
+    opt.steps.forEach((s) => { html += '<div class="t-step">' + s + "</div>"; });
+    const gate = DORM_GATES.find((d) => d.dorm === transitDorm.value);
+    if (gate) {
+      html += '<div class="transit-gate">🏛 建议从<b> ' + gate.gate + " </b>进校，然后在地图上找到你的宿舍区，用「路线规划」生成到宿舍的步行路线。</div>";
+    }
+    transitResult.innerHTML = html;
+  }
+  transitFrom.addEventListener("change", renderTransit);
+  transitDorm.addEventListener("change", renderTransit);
+  renderTransit();
+
+  /* ---------------- 校园巴士模拟 ---------------- */
+  let busAnimId = null, busLayer = null;
+  function stopBus() {
+    if (busAnimId !== null) { cancelAnimationFrame(busAnimId); busAnimId = null; }
+    if (busLayer) { map.removeLayer(busLayer); busLayer = null; }
+    $("#busStatus").textContent = "";
+  }
+  function busPath(line) {
+    const pts = [], segLens = [];
+    for (let i = 0; i < line.stops.length - 1; i++) {
+      const a = poiById[line.stops[i]], b = poiById[line.stops[i + 1]];
+      const r = dijkstra(extNodeCache[a.no], extNodeCache[b.no]);
+      if (!r) return null;
+      const seg = [[a.lat, a.lon]];
+      r.nodes.forEach((n) => seg.push(nodePts[n]));
+      seg.push([b.lat, b.lon]);
+      let len = 0;
+      for (let k = 1; k < seg.length; k++) len += haversine(seg[k - 1], seg[k]);
+      const startIdx = pts.length === 0 ? 0 : 1;
+      seg.slice(startIdx).forEach((p) => pts.push(p));
+      segLens.push(len);
+    }
+    return { pts, segLens };
+  }
+  $("#busPlayBtn").addEventListener("click", playBus);
+  $("#busStopBtn").addEventListener("click", stopBus);
+  function playBus() {
+    stopBus();
+    const line = BUS_LINES[Number($("#busLineSelect").value)];
+    const data = busPath(line);
+    if (!data || data.pts.length < 2) {
+      $("#busStatus").textContent = "该线路暂无法连通道路网";
+      return;
+    }
+    const gcj = data.pts.map((p) => wgs2gcj(p[0], p[1]));
+    const poly = L.polyline(gcj, { color: line.color, weight: 5, opacity: 0.85, dashArray: "8 8" });
+    busLayer = L.layerGroup([poly]).addTo(map);
+    const marker = L.marker(gcj[0], {
+      icon: L.divIcon({ className: "", html: '<span class="bus-dot" style="--bus:' + line.color + '"></span>', iconSize: [20, 20], iconAnchor: [10, 10] }),
+      interactive: false,
+    });
+    busLayer.addLayer(marker);
+    let total = 0;
+    const cum = [];
+    for (let i = 1; i < gcj.length; i++) { total += haversine(data.pts[i - 1], data.pts[i]); cum.push(total); }
+    const stopPos = [0];
+    data.segLens.forEach((l) => stopPos.push(stopPos[stopPos.length - 1] + l));
+    const dur = Math.max(6, Math.min(20, total / 60));
+    const t0 = performance.now();
+    function frame(now) {
+      const p = Math.min(1, (now - t0) / (dur * 1000));
+      const target = p * total;
+      let k = 0;
+      while (k < cum.length - 1 && cum[k] < target) k++;
+      const prevDist = k === 0 ? 0 : cum[k - 1];
+      const segLen = cum[k] - prevDist || 1;
+      const f = Math.min(1, (target - prevDist) / segLen);
+      const lat = data.pts[k][0] + (data.pts[k + 1][0] - data.pts[k][0]) * f;
+      const lon = data.pts[k][1] + (data.pts[k + 1][1] - data.pts[k][1]) * f;
+      marker.setLatLng(wgs2gcj(lat, lon));
+      let cur = "校门口";
+      for (let s = stopPos.length - 1; s >= 0; s--) {
+        if (stopPos[s] <= target + 1) { cur = poiById[line.stops[s]].name; break; }
+      }
+      $("#busStatus").textContent = line.name + " · " + cur;
+      if (p >= 1) {
+        $("#busStatus").textContent = line.name + " 已到终点站 · " + poiById[line.stops[line.stops.length - 1]].name;
+        if (busLayer) map.removeLayer(busLayer);
+        busLayer = null;
+        busAnimId = null;
+        return;
+      }
+      busAnimId = requestAnimationFrame(frame);
+    }
+    busAnimId = requestAnimationFrame(frame);
+    map.fitBounds(poly.getBounds(), { padding: [60, 60], maxZoom: 16 });
+  }
+
+  /* ---------------- 报到动线模式 ---------------- */
+  const reportBtn = $("#reportModeBtn");
+  const reportStatus = $("#reportStatus");
+  let reportOn = false, reportLayers = [], reportPanel = null;
+  function closeReport() {
+    reportOn = false;
+    reportBtn.classList.remove("active");
+    reportStatus.textContent = "";
+    if (reportPanel) { reportPanel.remove(); reportPanel = null; }
+    reportLayers.forEach((l) => map.removeLayer(l));
+    reportLayers = [];
+    Object.keys(markers).forEach((no) => markers[no].setIcon(pinIcon(poiById[Number(no)], false)));
+  }
+  function openReport() {
+    closeReport();
+    reportOn = true;
+    reportBtn.classList.add("active");
+    reportStatus.textContent = "点击步骤，地图带你走";
+    const pts = [];
+    REPORT_STEPS.forEach((s) => {
+      if (!poiById[s.poi]) return;
+      pts.push(wgs2gcj(poiById[s.poi].lat, poiById[s.poi].lon));
+      markers[s.poi].setIcon(pinIcon(poiById[s.poi], true));
+    });
+    const line = L.polyline(pts, { color: "#c9a227", weight: 4, dashArray: "6 8", opacity: 0.85 });
+    reportLayers.push(line);
+    line.addTo(map);
+    const panel = document.createElement("div");
+    panel.id = "reportPanel";
+    REPORT_STEPS.forEach((s) => {
+      const d = document.createElement("div");
+      d.className = "report-step";
+      const num = s.title.replace(/[^\d]/g, "");
+      d.innerHTML =
+        '<span class="rnum">' + num + "</span>" +
+        '<div><div class="rtitle">' + s.title + '</div><div class="rdesc">' + s.desc + "</div></div>";
+      d.addEventListener("click", () => focusPoi(s.poi, true));
+      panel.appendChild(d);
+    });
+    reportBtn.closest(".tool-row").after(panel);
+    map.fitBounds(line.getBounds(), { padding: [80, 80], maxZoom: 16 });
+  }
+  reportBtn.addEventListener("click", () => {
+    if (reportOn) closeReport(); else openReport();
+  });
+
+  /* ---------------- 天气 ---------------- */
+  const WMO = {
+    0: "☀️ 晴", 1: "🌤 晴间多云", 2: "⛅ 多云", 3: "☁️ 阴",
+    45: "🌫 雾", 48: "🌫 雾凇", 51: "🌦 毛毛雨", 53: "🌦 毛毛雨", 55: "🌧 毛毛雨",
+    61: "🌧 小雨", 63: "🌧 中雨", 65: "🌧 大雨", 66: "🌧 冻雨", 67: "🌧 冻雨",
+    71: "🌨 小雪", 73: "🌨 中雪", 75: "❄️ 大雪", 80: "🌦 阵雨", 81: "🌧 阵雨",
+    82: "🌧 强阵雨", 95: "⛈ 雷雨", 96: "⛈ 雷雨伴冰雹", 99: "⛈ 雷雨伴冰雹",
+  };
+  function renderWeather(d) {
+    const cur = d.current;
+    const code = WMO[cur.weather_code] || "🌡 " + cur.weather_code;
+    const days = d.daily;
+    let html =
+      '<div class="weather-today"><span class="weather-temp">' + Math.round(cur.temperature_2m) + "°C</span>" +
+      "<span>" + CONFIG.weather.city + " · " + code + "</span></div>" +
+      '<div class="weather-days">';
+    for (let i = 0; i < Math.min(4, days.time.length); i++) {
+      const wd = new Date(days.time[i] + "T00:00:00");
+      const label = i === 0 ? "今天" : ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][wd.getDay()];
+      html +=
+        '<div class="weather-day"><span>' + label + '</span><b>' + Math.round(days.temperature_2m_max[i]) + "°</b>" +
+        "<span>" + Math.round(days.temperature_2m_min[i]) + "°</span></div>";
+    }
+    html += "</div>";
+    $("#weatherBox").innerHTML = html;
+  }
+  fetch(
+    "https://api.open-meteo.com/v1/forecast?latitude=" + CONFIG.weather.lat +
+    "&longitude=" + CONFIG.weather.lon +
+    "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min" +
+    "&timezone=Asia%2FShanghai&forecast_days=4"
+  ).then((r) => r.json()).then(renderWeather).catch(() => {
+    $("#weatherBox").textContent = "天气服务暂不可用（离线或无网络时无法获取）";
+  });
+
+  /* ---------------- 常用入口 / 多校区 ---------------- */
+  $("#campusLinks").innerHTML = CAMPUS_LINKS.map((l) =>
+    '<li><a href="' + l.url + '" target="_blank" rel="noopener"><b>' + l.name + "</b></a> — " + l.desc + "</li>"
+  ).join("");
+  $("#campusNote").innerHTML = CAMPUS_NOTE.map((c) =>
+    "<li><b>" + c.name + "</b>（" + c.addr + "）" + c.note + "</li>"
+  ).join("");
+
+  /* ---------------- PWA 离线支持 ---------------- */
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* 忽略注册失败 */ });
+  }
 })();
