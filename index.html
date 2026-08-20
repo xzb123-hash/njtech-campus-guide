@@ -15,15 +15,15 @@
 
   <!-- ======== 顶部导航 ======== -->
   <nav id="topbar">
-    <a class="brand" href="index.html">
+    <a class="brand" href="#hero">
       <span class="brand-badge">NJUT</span>
       <span class="brand-text">南工大 · 新生导览</span>
     </a>
     <div class="nav-links">
-      <a href="map.html">校园地图</a>
-      <a href="guide.html">新生指南</a>
-      <a href="gallery.html">校园掠影</a>
-      <a href="about.html">关于数据</a>
+      <a href="#map">校园地图</a>
+      <a href="#guide">新生指南</a>
+      <a href="#gallery">校园掠影</a>
+      <a href="#about">关于数据</a>
     </div>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
   </nav><header id="hero">
@@ -96,8 +96,8 @@
       <p class="hero-sub">南京工业大学 · 江浦校区新生校园导览<br>提前认识教学楼、宿舍、食堂、快递与每一处地标</p>
 
       <div class="hero-actions">
-        <a class="btn btn-primary" href="map.html">进入校园地图</a>
-        <a class="btn btn-ghost" href="guide.html">新生报到指南</a>
+        <a class="btn btn-primary" href="#map">进入校园地图</a>
+        <a class="btn btn-ghost" href="#guide">新生报到指南</a>
       </div>
 
       <div class="hero-stats">
@@ -107,40 +107,366 @@
       </div>
     </div>
 
-    <a class="scroll-cue" href="map.html" aria-label="向下滚动"><span></span></a>
-  </header<section id="entries" class="entries-section">
-  <div class="section-head">
-    <p class="section-kicker">EXPLORE</p>
-    <h2>选择你想逛的</h2>
-    <p class="section-desc">点击卡片进入对应页面 · 不再上下滑动</p>
-  </div>
-  <div class="entries-grid">
-    <a class="entry-card" href="map.html">
-      <span class="entry-icon">🗺️</span>
-      <h3>校园地图</h3>
-      <p>61 个编号地点 · 搜索定位 · 路线规划 · 校车模拟 · 报到动线</p>
-      <span class="entry-go">进入页面 →</span>
+    <a class="scroll-cue" href="#map" aria-label="向下滚动"><span></span></a>
+  </header><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>校园地图 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="map">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
     </a>
-    <a class="entry-card" href="guide.html">
-      <span class="entry-icon">🎓</span>
-      <h3>新生指南</h3>
-      <p>报到倒计时 · 行李清单 · 交通接驳 · 天气 · 常用入口</p>
-      <span class="entry-go">进入页面 →</span>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="map" class="map-section">
+    <div class="section-head">
+      <p class="section-kicker">INTERACTIVE CAMPUS MAP</p>
+      <h2>江浦校区交互地图</h2>
+      <p class="section-desc">序号从东南门（正门）开始编号 · 点击序号查看照片与介绍 · 输入地点查找位置 · 选择两个地点生成步行路线</p>
+    </div>
+
+    <div class="map-wrap">
+      <div class="map-tools">
+        <div class="tool-search">
+          <label for="searchInput">地点搜索</label>
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="输入地点，如：厚学楼 / 菜鸟驿站 / 食堂…" autocomplete="off">
+            <button id="searchBtn" type="button" aria-label="搜索">搜索</button>
+          </div>
+          <ul id="searchHints" class="search-hints" hidden></ul>
+        </div>
+
+        <div class="tool-route">
+          <label>路线规划 <span class="hint">（生成路线 + 预计步行时长）</span></label>
+          <div class="route-row">
+            <input id="routeFrom" type="text" placeholder="起点，如：东南门" autocomplete="off">
+            <button id="swapBtn" type="button" title="交换起终点" aria-label="交换">⇄</button>
+            <input id="routeTo" type="text" placeholder="终点，如：逸夫图书馆" autocomplete="off">
+          </div>
+          <div class="route-actions">
+            <button id="routeBtn" class="btn btn-primary btn-sm" type="button">生成路线</button>
+            <button id="clearRouteBtn" class="btn btn-ghost btn-sm" type="button">清除</button>
+            <span id="routeResult" class="route-result"></span>
+          </div>
+        </div>
+
+        <div class="tool-legend">
+          <span class="legend-title">图例（点击筛选）</span>
+          <div id="legendChips" class="legend-chips"></div>
+        </div>
+
+        <div class="tool-row">
+          <button id="reportModeBtn" class="btn btn-outline btn-sm" type="button">🧭 报到动线模式</button>
+          <span id="reportStatus" class="tool-status"></span>
+        </div>
+        <div class="tool-bus">
+          <label for="busLineSelect">校园巴士模拟（站点动画）</label>
+          <div class="bus-row">
+            <select id="busLineSelect">
+              <option value="0">象山线</option>
+              <option value="1">亚青线</option>
+            </select>
+            <button id="busPlayBtn" class="btn btn-primary btn-sm" type="button">▶ 播放</button>
+            <button id="busStopBtn" class="btn btn-ghost btn-sm" type="button">■ 停止</button>
+          </div>
+          <span id="busStatus" class="tool-status"></span>
+        </div>
+      </div>
+
+      <div id="campusMap" class="campus-map"></div>
+
+      <aside id="poiPanel" class="poi-panel">
+        <div class="panel-head">
+          <span>地点索引</span>
+          <button id="panelToggle" type="button" aria-label="收起">‹</button>
+        </div>
+        <div class="panel-search">
+          <input id="panelFilter" type="text" placeholder="筛选地点…">
+        </div>
+        <div id="poiList" class="poi-list"></div>
+      </aside>
+    </div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>新生指南 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="guide">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
     </a>
-    <a class="entry-card" href="gallery.html">
-      <span class="entry-icon">📷</span>
-      <h3>校园掠影</h3>
-      <p>26 张官方实景照片，报到前先睹为快</p>
-      <span class="entry-go">进入页面 →</span>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="guide" class="guide-section">
+    <div class="section-head">
+      <p class="section-kicker">FRESHMAN GUIDE</p>
+      <h2>新生报到 · 校园生活指南</h2>
+      <p class="section-desc">提前准备，报到不慌</p>
+    </div>
+
+    <div class="toolbox">
+      <article class="tool-card tool-weather">
+        <div class="tool-card-head">☁️ 南京天气与报到倒计时</div>
+        <div id="weatherBox" class="weather-box">正在获取天气…</div>
+        <div class="countdown">
+          <div class="countdown-label">距报到日还有</div>
+          <div id="countdown" class="countdown-digits">--天 --时 --分 --秒</div>
+          <label class="countdown-edit">报到日：<input id="orientationDate" type="datetime-local"></label>
+        </div>
+      </article>
+
+      <article class="tool-card tool-checklist">
+        <div class="tool-card-head">🧳 行李清单 <span class="tool-card-sub">点击勾选，自动保存</span></div>
+        <div class="checklist-progress"><div id="checklistBar" class="checklist-bar"></div><span id="checklistPct">0%</span></div>
+        <div id="checklistBody" class="checklist-body"></div>
+      </article>
+
+      <article class="tool-card tool-transit">
+        <div class="tool-card-head">🚇 从家到宿舍 · 交通接驳助手</div>
+        <label>我在：</label>
+        <select id="transitFrom" class="transit-select"></select>
+        <label>我的宿舍区：</label>
+        <select id="transitDorm" class="transit-select"></select>
+        <div id="transitResult" class="transit-result"></div>
+      </article>
+    </div>
+
+    <div class="guide-grid">
+      <article class="guide-card">
+        <div class="guide-icon">🏛</div>
+        <h3>从哪个门进校？</h3>
+        <ul>
+          <li><b>东南门（正门）</b>：东苑、西苑、南苑、北苑、景星苑等片区新生首选；报到日需从南门入校。</li>
+          <li><b>西门（浦口大道100号）</b>：亚青、象山、檀香片区新生建议就近入校。</li>
+          <li><b>北门</b>：北部宿舍区车辆通道（参考）。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🚇</div>
+        <h3>怎么到学校？</h3>
+        <ul>
+          <li><b>地铁</b>：10号线「南京工业大学站」，报到日学校在1号口设接驳车；2号口步行约1.3公里到校。</li>
+          <li><b>公交</b>：「工业大学江浦校区南」站：603、D10、D14、D15、D59、D61、680、698、512、Y29/Y38等。</li>
+          <li><b>校园巴士</b>：象山线 / 亚青线，站点：校门口、东苑、北苑、同和·仁智、象山苑、亚青食堂。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">📦</div>
+        <h3>快递怎么收？</h3>
+        <ul>
+          <li>地址格式：<code>江苏省南京市江北新区浦珠南路30号 + 苑区/楼栋</code>，邮编 211816。</li>
+          <li>主要站点：东苑快递中心（菜鸟）、亚青村菜鸟驿站（24/25栋间）、西苑食堂旁京东/顺丰、明德楼下中国邮政。</li>
+          <li>取件短信会写明具体站点与取件码，按地图定位走即可。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🛏</div>
+        <h3>宿舍与生活</h3>
+        <ul>
+          <li>宿舍区：东苑、南苑（含桂苑）、西苑、北苑、景星苑、浦江、象山苑、亚青村等，多为上床下桌。</li>
+          <li>食堂：东苑、西苑、南苑、北苑（含民族食堂）、景星苑、象山、亚青村等近 10 个食堂。</li>
+          <li>就医：校医院（镜湖旁）为医保定点；学生事务中心可办校园卡与各类证明。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🏃</div>
+        <h3>运动场地在哪？</h3>
+        <ul>
+          <li>行健体育馆（综合）+ 游泳馆 + 行健田径场（大操场）。</li>
+          <li>东苑球场、亚青运动场、棒垒球场等散布各宿舍区。</li>
+          <li>音乐台适合晚会与社团活动；镜湖环湖道适合夜跑。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">📍</div>
+        <h3>使用小贴士</h3>
+        <ul>
+          <li>点地图上的<b>彩色编号</b>可看照片和介绍。</li>
+          <li>搜索框支持模糊搜索（如「快递」「图书馆」）。</li>
+          <li>输入两个地点即可生成<b>步行路线与预计时长</b>。</li>
+          <li>位置为公开数据整理，报到时以校内指示牌为准。</li>
+        </ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🔗</div>
+        <h3>常用入口</h3>
+        <ul id="campusLinks"></ul>
+      </article>
+
+      <article class="guide-card">
+        <div class="guide-icon">🏙</div>
+        <h3>多校区速览</h3>
+        <ul id="campusNote"></ul>
+      </article>
+    </div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>校园掠影 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="gallery">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
     </a>
-    <a class="entry-card" href="about.html">
-      <span class="entry-icon">ℹ️</span>
-      <h3>关于数据</h3>
-      <p>数据来源 · 步行算法 · 版权说明</p>
-      <span class="entry-go">进入页面 →</span>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="gallery" class="gallery-section">
+    <div class="section-head">
+      <p class="section-kicker">CAMPUS GALLERY</p>
+      <h2>校园掠影</h2>
+      <p class="section-desc">实景照片 · 来源：南京工业大学官方澎湃号 / 校网新闻（融媒体中心）</p>
+    </div>
+    <div id="galleryGrid" class="gallery-grid"></div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>关于数据 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="about">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
     </a>
-  </div>
-</section><footer>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="about" class="about-section">
+    <div class="section-head">
+      <p class="section-kicker">ABOUT THE DATA</p>
+      <h2>关于数据与免责说明</h2>
+    </div>
+    <div class="about-cards">
+      <div>
+        <h3>位置数据</h3>
+        <p>建筑物与道路坐标来自 <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>（ODbL 许可）及公开资料整理，经 WGS84→GCJ02 纠偏后叠加高德底图；少数地点（西门、北门、快递点等）为参考位置。</p>
+      </div>
+      <div>
+        <h3>步行时长</h3>
+        <p>按校园道路网最短路径 × 步行速度 1.25 m/s（约 4.5 km/h）估算，另加 10% 余量，仅供参考。</p>
+      </div>
+      <div>
+        <h3>版权</h3>
+        <p>校训、校徽元素仅用于校园文化展示；照片版权归原作者所有；站点为新生公益导览，无商业用途。如有不妥请联系删除。</p>
+      </div>
+    </div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+<footer>
     <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
     <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
   </footer>
