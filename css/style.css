@@ -491,6 +491,40 @@ section{scroll-margin-top:64px}
 .about-cards h3{margin:0 0 8px;font-size:16px;color:var(--navy-900)}
 .about-cards p{margin:0;font-size:13.5px;color:var(--muted)}
 .about-cards a{color:var(--navy-600);text-decoration:underline}
+
+/* ---------- 首页入口卡片 ---------- */
+.entries-section{padding:20px 20px 80px}
+.entries-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;
+  max-width:1080px;margin:36px auto 0;
+}
+.entry-card{
+  position:relative;display:flex;flex-direction:column;gap:10px;
+  padding:30px 26px;border-radius:var(--radius);
+  background:var(--card);box-shadow:var(--shadow);border-top:4px solid var(--navy-700);
+  transition:transform .2s, box-shadow .2s;overflow:hidden;
+}
+.entry-card:nth-child(2){border-top-color:#1f9d55}
+.entry-card:nth-child(3){border-top-color:#e8833a}
+.entry-card:nth-child(4){border-top-color:#8b5cf6}
+.entry-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.entry-card::after{
+  content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,162,39,.18),transparent 70%);
+}
+.entry-icon{font-size:36px}
+.entry-card h3{margin:0;font-size:20px;color:var(--navy-900)}
+.entry-card p{margin:0;font-size:13.5px;color:var(--muted);flex:1}
+.entry-go{font-size:13px;font-weight:800;color:var(--gold)}
+
+/* ---------- 导航当前页高亮 & 非首页留白 ---------- */
+.nav-links a.active{color:var(--gold-light);border-bottom:2px solid var(--gold-light);padding-bottom:2px}
+body[data-page="map"] .map-section{padding-top:58px}
+body[data-page="guide"] .guide-section{padding-top:56px}
+body[data-page="gallery"] .gallery-section{padding-top:56px}
+body[data-page="about"] .about-section{padding-top:56px}
+[data-theme="dark"] .entry-card{background:var(--card)}
+[data-theme="dark"] .entry-card h3{color:#eef2fb}
 footer{
   background:var(--navy-900);color:rgba(255,255,255,.85);text-align:center;
   padding:28px 16px;font-size:13.5px;
