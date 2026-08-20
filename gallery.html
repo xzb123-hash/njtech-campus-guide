@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>校园掠影 · 南京工业大学新生导览</title>
+  <meta name="description" content="为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点编号检索、步行路线与步行时长估算。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="images/logo/icon-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="gallery">
+
+  <!-- ======== 顶部导航 ======== -->
+  <nav id="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">NJUT</span>
+      <span class="brand-text">南工大 · 新生导览</span>
+    </a>
+    <div class="nav-links">
+      <a href="map.html">校园地图</a>
+      <a href="guide.html">新生指南</a>
+      <a href="gallery.html">校园掠影</a>
+      <a href="about.html">关于数据</a>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">🌙</button>
+  </nav><section id="gallery" class="gallery-section">
+    <div class="section-head">
+      <p class="section-kicker">CAMPUS GALLERY</p>
+      <h2>校园掠影</h2>
+      <p class="section-desc">实景照片 · 来源：南京工业大学官方澎湃号 / 校网新闻（融媒体中心）</p>
+    </div>
+    <div id="galleryGrid" class="gallery-grid"></div>
+  </section><footer>
+    <p>南京工业大学 · 新生校园导览 <span>|</span> 制作于 2026 年夏 <span>|</span> 祝每一位新生入学顺利</p>
+    <p class="footer-small">地图底图 © 高德地图 · 校园数据 © OpenStreetMap contributors (ODbL)</p>
+  </footer>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/roads_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
