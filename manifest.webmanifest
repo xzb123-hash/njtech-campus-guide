@@ -1,0 +1,15 @@
+{
+  "name": "南京工业大学 · 新生校园导览",
+  "short_name": "南工大导览",
+  "description": "为南京工业大学准大一新生打造的校园提前熟悉指南：详细校园地图、地点检索、步行路线与报到生活指南。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1f4d",
+  "theme_color": "#0b1f4d",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "images/logo/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "images/logo/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
