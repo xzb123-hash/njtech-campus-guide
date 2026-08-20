@@ -23,6 +23,8 @@ body{
   color:var(--ink);
   background:var(--paper);
   line-height:1.65;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-text-size-adjust:100%;
 }
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
@@ -253,7 +255,7 @@ section{scroll-margin-top:64px}
 /* 弹窗 */
 .poi-popup{font-family:var(--font)}
 .poi-popup .leaflet-popup-content-wrapper{border-radius:16px;box-shadow:var(--shadow-lg);padding:0;overflow:hidden}
-.poi-popup .leaflet-popup-content{margin:0;width:300px !important}
+.poi-popup .leaflet-popup-content{margin:0;width:300px !important;max-width:calc(100vw - 36px)}
 .poi-popup .leaflet-popup-tip{box-shadow:var(--shadow)}
 .popup-media{height:168px;background:linear-gradient(135deg,#12347a,#0e2a5e);position:relative;overflow:hidden}
 .popup-media img{width:100%;height:100%;object-fit:cover}
@@ -354,12 +356,36 @@ footer span{color:var(--gold);margin:0 8px}
 .footer-small{font-size:11px;color:rgba(255,255,255,.55);margin:8px 0 0}
 
 /* ---------- 响应式 ---------- */
+@media (max-width:1280px){
+  .poi-panel{width:250px}
+}
 @media (max-width:900px){
-  .map-wrap{height:calc(100vh - 90px);min-height:560px;margin:18px 10px 30px}
-  .map-tools{top:10px;left:10px;right:10px;width:auto;max-height:46%;overflow:auto}
+  .map-wrap{height:calc(100dvh - 70px);min-height:520px;margin:14px 8px 26px}
+  .map-tools{top:10px;left:10px;right:10px;width:auto;max-height:52%;overflow:auto;padding:12px}
+  .map-tools .btn,.search-box button,#swapBtn{min-height:42px}
+  .search-box input,.route-row input,.panel-search input{padding:11px 13px;font-size:16px}
+  .legend-chip{padding:6px 12px;font-size:13px}
+  .poi-pin{width:34px;height:34px;font-size:13px}
   .poi-panel{display:none}
   .nav-links{display:none}
   .hero-stats{gap:24px}
+  .hero-content{padding:96px 18px 70px}
+  .guide-grid{grid-template-columns:1fr}
+  .gallery-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .section-head{padding:44px 14px 6px}
+  .gallery-item figcaption{font-size:11px;padding:18px 8px 6px}
+}
+@media (max-width:480px){
+  #topbar{padding:10px 14px}
+  .brand-text{font-size:13px}
+  .hero-title{letter-spacing:4px}
+  .route-row{flex-wrap:nowrap}
+  .route-actions .btn{flex:1}
+  .map-tools{max-height:58%}
+  .poi-popup .leaflet-popup-content{width:calc(100vw - 40px) !important}
+  .popup-media{height:150px}
+  .popup-actions .btn{padding:10px 8px;font-size:12px}
+  .guide-card{padding:20px}
 }
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
