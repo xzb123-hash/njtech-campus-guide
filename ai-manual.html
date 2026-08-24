@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1f4d">
+  <title>AI 说明书 · 让 AI 听懂你说的话</title>
+  <style>
+    :root{
+      --navy-900:#081a3f; --navy-800:#0b1f4d; --navy-700:#0e2a5e; --navy-600:#12347a;
+      --gold:#c9a227; --gold-light:#e8d48b;
+      --paper:#f4f6fb; --ink:#16233f; --muted:#5c6a85; --line:#dde3ef; --card:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+      color:var(--ink);background:var(--paper);line-height:1.75;
+      -webkit-text-size-adjust:100%;
+    }
+    header{
+      background:
+        radial-gradient(900px 420px at 12% -10%, rgba(30,63,122,.7), transparent 60%),
+        radial-gradient(700px 380px at 88% 0%, rgba(201,162,39,.22), transparent 55%),
+        linear-gradient(160deg,#0a1c45,#0d2654 60%,#10295c);
+      color:#fff;text-align:center;padding:56px 20px 44px;
+    }
+    header .badge{
+      display:inline-block;padding:6px 18px;border:1.5px solid var(--gold);border-radius:999px;
+      color:var(--gold-light);font-size:13px;letter-spacing:3px;margin-bottom:16px;
+    }
+    header h1{margin:0 0 8px;font-size:clamp(30px,6vw,46px);letter-spacing:2px}
+    header h1 span{color:var(--gold-light)}
+    header p{margin:0;color:rgba(255,255,255,.82);font-size:15px}
+    main{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+    section{
+      background:var(--card);border-radius:16px;padding:22px 22px 8px;margin-bottom:18px;
+      box-shadow:0 10px 30px rgba(8,26,63,.08);border-top:4px solid var(--navy-700);
+    }
+    h2{font-size:20px;color:var(--navy-900);margin:0 0 12px}
+    h2 .no{
+      display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--gold);
+      color:#fff;font-size:14px;align-items:center;justify-content:center;margin-right:8px;vertical-align:2px;
+    }
+    h3{font-size:16px;color:var(--navy-800);margin:18px 0 6px}
+    p,li{font-size:14.5px;color:#3c4a66}
+    ul,ol{padding-left:22px;margin:8px 0}
+    li{margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+    th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+    th{background:#eef2fb;color:var(--navy-800)}
+    .tip{
+      background:#eef7f0;border-left:4px solid #1f9d55;border-radius:8px;
+      padding:10px 14px;font-size:13.5px;color:#1e6b3c;margin:12px 0;
+    }
+    .warn{
+      background:#fdf3e7;border-left:4px solid #e8833a;border-radius:8px;
+      padding:10px 14px;font-size:13.5px;color:#8a4b12;margin:12px 0;
+    }
+    .code{
+      position:relative;background:#0e1d3d;color:#e8ecf8;border-radius:12px;
+      padding:16px 16px 18px;font-size:13px;line-height:1.8;overflow-x:auto;
+      white-space:pre-wrap;word-break:break-word;margin:10px 0;
+    }
+    .copy-btn{
+      position:absolute;top:10px;right:10px;border:1px solid rgba(232,212,139,.6);background:rgba(255,255,255,.08);
+      color:var(--gold-light);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;
+      font-family:inherit;
+    }
+    .copy-btn:hover{background:rgba(255,255,255,.16)}
+    .motto{
+      background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-900);
+      border-radius:12px;padding:16px 18px;font-weight:700;font-size:16px;text-align:center;margin:14px 0;
+    }
+    footer{
+      text-align:center;padding:26px 16px 40px;color:var(--muted);font-size:13px;
+      background:#fff;border-top:1px solid var(--line);
+    }
+    footer b{color:var(--gold)}
+    @media (max-width:480px){
+      main{padding:18px 10px 40px}
+      section{padding:18px 16px 6px}
+      th,td{font-size:12.5px;padding:7px 6px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">vibecoding · 校园技术 IP</div>
+    <h1>《AI <span>说明书</span>》</h1>
+    <p>让 AI 听懂你说的话 · 五步模板 + 网站案例</p>
+  </header>
+
+  <main>
+    <div class="motto">AI 不读心，它只读说明书。你给的信息质量 = 它输出的质量。</div>
+
+    <section>
+      <h2><span class="no">1</span>为什么 AI 会“听不懂你”</h2>
+      <table>
+        <tr><th>原因</th><th>说明</th></tr>
+        <tr><td>它不会读心</td><td>你没说的，它只能猜</td></tr>
+        <tr><td>歧义太多</td><td>“网站”“程序”“好看”各有无数种理解</td></tr>
+        <tr><td>隐含假设缺失</td><td>给谁用、什么风格、手机还是电脑，你不说它不知道</td></tr>
+        <tr><td>信息密度不够</td><td>一句话 vs 一份说明书，产出天差地别</td></tr>
+      </table>
+      <p><b>对比：</b>“帮我做个网站”→ 教科书式废话；完整说明书 → 接近成品的半成品。</p>
+    </section>
+
+    <section>
+      <h2><span class="no">2</span>五步说明书法</h2>
+      <h3>① 给角色 —— 设定专家模式</h3>
+      <p>公式：<code>你是资深{岗位}，擅长{技能}，标准是{质量要求}</code></p>
+      <h3>② 给用户和场景 —— 定义“好用”</h3>
+      <p>公式：<code>使用者是{谁}，场景是{哪里/什么时候}，最需要{什么}</code></p>
+      <h3>③ 给范围和清单 —— 划清边界</h3>
+      <p>公式：<code>要{功能/风格}；不要{花哨/无关内容}</code></p>
+      <h3>④ 给输出方式和步骤 —— 先骨架后细节</h3>
+      <p>公式：<code>先做{第一步}，确认后做{第二步}，每步列关键决定</code></p>
+      <h3>⑤ 给检查与迭代 —— 成品是改出来的</h3>
+      <p>公式：<code>保留{好的部分}，修改{具体位置+新要求}，其余不动</code></p>
+      <div class="tip"><b>口诀：</b>角色 → 用户 → 范围 → 步骤 → 迭代</div>
+    </section>
+
+    <section>
+      <h2><span class="no">3</span>完整模板（可直接填空）</h2>
+      <div class="code" id="tpl">
+【角色】你是资深{岗位}，擅长{技能}，标准是{质量要求}。
+【任务】帮我做{项目名}。
+【用户】使用者是{谁}，场景是{哪里/什么时候}，最需要{什么}。
+【要求】要{功能/风格}；不要{花哨/无关内容}。
+【输出方式】先做{第一步}，确认后做{第二步}，每步列关键决定，并告诉我下一步建议。
+        <button class="copy-btn" onclick="copyText('tpl')">复制</button>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="no">4</span>网站案例（完整提示词）</h2>
+      <div class="code" id="case">
+你是资深前端工程师，做过很多大学校园类产品，对用户体验和视觉设计的要求很高。
+帮我做一个南京工业大学新生导览网站。
+使用者是准大一新生：第一次来学校，不认识路，最需要快速找到教学楼、宿舍、食堂、快递点和报到流程。他们报到前后一周使用频率最高，主要在手机上看，也会用电脑。
+要求：视觉深蓝金色、高级干净，像学校官方出品；功能包括校园地图带编号、分类配色、搜索和两点间路线；不要花哨动画、娱乐化配色、与新生无关的内容。
+输出方式：先做首页封面（含校徽、校训、入口按钮）；我确认后再做校园地图；每完成一步列出关键决定，并告诉我下一步建议。
+        <button class="copy-btn" onclick="copyText('case')">复制</button>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="no">5</span>迭代话术 + 自检清单</h2>
+      <h3>迭代话术</h3>
+      <div class="code" id="iter">
+整体方向对了，改两个地方：
+1. 地图编号颜色按分类：教学楼蓝、宿舍绿、食堂橙、快递紫；
+2. 封面校徽换成官网官方 logo。
+其他全部保持不动。
+        <button class="copy-btn" onclick="copyText('iter')">复制</button>
+      </div>
+      <h3>自检清单（让它自己检查）</h3>
+      <div class="code" id="check">
+请按这个清单自检一遍：
+1. 地图编号是否从 1 连续编号？
+2. 手机端打开会不会横向溢出？
+3. 分类配色是否全部按约定？
+发现问题直接改，改完告诉我改了哪几处。
+        <button class="copy-btn" onclick="copyText('check')">复制</button>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="no">6</span>常见翻车对照表</h2>
+      <table>
+        <tr><th>模糊说法</th><th>正确写法</th><th>效果</th></tr>
+        <tr><td>帮我做个网站</td><td>用完整模板写清楚角色/用户/范围/步骤</td><td>一次成型</td></tr>
+        <tr><td>颜色好看点</td><td>深蓝金色，像学校官方出品</td><td>不跑偏</td></tr>
+        <tr><td>加个功能</td><td>在首页加搜索框，输入地点跳到地图对应位置</td><td>精准实现</td></tr>
+        <tr><td>改一下</td><td>保留 X，把 Y 改成 Z，其余不动</td><td>不破坏已有成果</td></tr>
+        <tr><td>你觉得呢</td><td>先给 3 个方案再对比选择</td><td>有决策依据</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2><span class="no">7</span>进阶技巧</h2>
+      <ul>
+        <li><b>给例子（few-shot）</b>：给它一个你想要的输出样本，它照着来</li>
+        <li><b>负向约束</b>：明确写“不要……”</li>
+        <li><b>指定输出格式</b>：表格 / JSON / 分步骤 / 给代码</li>
+        <li><b>让它先复述</b>：“先告诉我你理解的需求，确认后再开始”</li>
+        <li><b>多轮上下文</b>：新对话先补一句背景，别让它“失忆”</li>
+        <li><b>拆大任务</b>：一次只做一件事，做完检查再继续</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="no">8</span>两个提醒</h2>
+      <div class="warn"><b>1. 防幻觉：</b>AI 会一本正经地胡说，重要信息一定要自己验证。</div>
+      <div class="warn"><b>2. 防泄露：</b>别把隐私、密码等敏感信息发给 AI；校园项目注意数据合规。</div>
+    </section>
+  </main>
+
+  <footer>
+    评论区扣<b>「1」</b>领取 · vibecoding · 校园技术 IP<br>
+    南京工业大学 · 新生导览
+  </footer>
+
+  <script>
+    function copyText(id) {
+      const el = document.getElementById(id);
+      const text = el.innerText.replace('复制', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = el.querySelector('.copy-btn');
+        const old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        setTimeout(() => { btn.textContent = old; }, 1600);
+      }).catch(() => {});
+    }
+  </script>
+</body>
+</html>
